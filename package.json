@@ -1,0 +1,31 @@
+{
+  "name": "german-dictionary",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+"scripts": {
+    "dev": "concurrently \"nodemon server.js\" \"browser-sync start --proxy http://localhost:3000 --files \\\"index.html,app.js,style.css,wiktionary-parser.js\\\"\"",
+    "start": "node server.js"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/realdionys/german-dictionary.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/realdionys/german-dictionary/issues"
+  },
+  "homepage": "https://github.com/realdionys/german-dictionary#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4",
+    "concurrently": "^10.0.5",
+    "live-server": "^1.2.2",
+    "nodemon": "^3.1.14"
+  }
+}
