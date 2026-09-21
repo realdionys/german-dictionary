@@ -1,6 +1,7 @@
 const form = document.getElementById("search-form");
 const input = document.getElementById("search-input");
 const result = document.getElementById("result");
+let searchInProgress = false;
 
 
 form.addEventListener("submit", async (event) => {
@@ -23,6 +24,11 @@ document.querySelectorAll(".example-query").forEach((button) => {
 
 
 async function searchWord(word, exactMatch = false) {
+    if (searchInProgress) {
+        return;
+    }
+
+    searchInProgress = true;
     input.value = word;
 
     result.innerHTML = `
@@ -68,6 +74,8 @@ async function searchWord(word, exactMatch = false) {
                 <p>Something went wrong. Please try again in a moment.</p>
             </div>
         `;
+    } finally {
+        searchInProgress = false;
     }
 }
 
@@ -93,8 +101,8 @@ function renderChoices(data) {
 
     result.innerHTML = `
         <section class="choice-list">
-            <h2>Which word did you mean?</h2>
-            <p>We found a few possible entries for <strong>${escapeHtml(data.query)}</strong>.</p>
+            <h2>which word did you mean?</h2>
+            <p>we found a few possible entries for <strong>${escapeHtml(data.query)}</strong></p>
             ${choices}
         </section>
     `;

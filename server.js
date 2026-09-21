@@ -77,9 +77,13 @@ async function fetchWiktionaryPage(page) {
             formatversion: "2"
         });
 
-    for (let attempt = 0; attempt < 2; attempt += 1) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    "User-Agent": "GermanLearnersDictionary/0.1 (educational project)"
+                }
+            });
 
             if (!response.ok) {
                 throw new Error(`Wiktionary returned ${response.status}`);
@@ -94,11 +98,14 @@ async function fetchWiktionaryPage(page) {
 
             return data;
         } catch (error) {
-            if (attempt === 1) {
+            if (attempt === 2) {
                 return { error: "wiktionary request failed" };
             }
 
-            await new Promise((resolve) => setTimeout(resolve, 300));
+            await new Promise((resolve) => setTimeout(
+                resolve,
+                500 * (attempt + 1)
+            ));
         }
     }
 }

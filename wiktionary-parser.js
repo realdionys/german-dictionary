@@ -222,6 +222,15 @@ function extractBaseForm(wikitext) {
 }
 
 
+function extractGermanSection(wikitext) {
+    const match = wikitext.match(
+        /^==\s*[^=\n]*\{\{Sprache\|Deutsch\}\}[^=\n]*==\s*([\s\S]*?)(?=^==(?!=)|(?![\s\S]))/im
+    );
+
+    return match ? match[1] : null;
+}
+
+
 function parseWord(wikitext, word) {
     const result = {
         word: word,
@@ -232,16 +241,22 @@ function parseWord(wikitext, word) {
             english: [],
             russian: []
         },
-        article: extractArticle(wikitext),
-        baseForm: extractBaseForm(wikitext),
+        article: null,
+        baseForm: null,
         meanings: [],
         verb: null
     };
 
+    const germanSection = extractGermanSection(wikitext);
+
+    if (!germanSection) {
+        return result;
+    }
+
 
     // wortart
 
-    const wortartMatch = wikitext.match(
+    const wortartMatch = germanSection.match(
         /\{\{Wortart\|([^|]+)\|Deutsch/
     );
 
@@ -255,7 +270,7 @@ function parseWord(wikitext, word) {
     // verb forms
 
     const verbTemplate = getTemplate(
-        wikitext,
+        germanSection,
         "Deutsch Verb Übersicht"
     );
 
@@ -305,7 +320,7 @@ function parseWord(wikitext, word) {
     // pronunciation
 
     const pronunciation = extractPronunciation(
-        wikitext
+        germanSection
     );
 
     if (pronunciation) {
@@ -313,53 +328,49 @@ function parseWord(wikitext, word) {
     }
 
 
-    // german section
+    result.article = extractArticle(germanSection);
 
-    const germanSectionMatch = wikitext.match(
-        /==\s*[^=\n]*\{\{Sprache\|Deutsch\}\}[^=\n]*==([\s\S]*)/i
+    if (result.partOfSpeech === "Deklinierte Form") {
+        result.baseForm = extractBaseForm(germanSection);
+    }
+
+    const examples = extractExamples(
+        germanSection
     );
 
-    if (germanSectionMatch) {
-        const germanSection = germanSectionMatch[1];
-
-        const examples = extractExamples(
-            germanSection
-        );
-
-        result.translations = extractTranslations(
-            germanSection
-        );
+    result.translations = extractTranslations(
+        germanSection
+    );
 
 
-        // meanings
+    // meanings
 
-        const meaningsMatch = germanSection.match(
-            /\{\{Bedeutungen\}\}([\s\S]*?)(?=\n\{\{|\n===|\n==|$)/i
-        );
+    const meaningsMatch = germanSection.match(
+        /\{\{Bedeutungen\}\}([\s\S]*?)(?=\n\{\{|\n===|\n==|$)/i
+    );
 
-        if (meaningsMatch) {
-            const lines = meaningsMatch[1]
-                .split("\n")
-                .map((line) => line.trim())
-                .filter((line) =>
-                    /^:\[\d+\]/.test(line)
-                );
+    if (meaningsMatch) {
+        const lines = meaningsMatch[1]
+            .split("\n")
+            .map((line) => line.trim())
+            .filter((line) =>
+                /^:\[\d+\]/.test(line)
+            );
 
-            result.meanings = lines.map((line) => {
-                const match = line.match(
-                    /^:\[(\d+)\]\s*(.*)$/
-                );
+        result.meanings = lines.map((line) => {
+            const match = line.match(
+                /^:\[(\d+)\]\s*(.*)$/
+            );
 
-                const number = match[1];
+            const number = match[1];
 
-                return {
-                    number: number,
-                    definition: cleanText(match[2]),
-                    labels: extractLabels(match[2]),
-                    examples: examples[number] || []
-                };
-            });
-        }
+            return {
+                number: number,
+                definition: cleanText(match[2]),
+                labels: extractLabels(match[2]),
+                examples: examples[number] || []
+            };
+        });
     }
 
 
