@@ -152,7 +152,7 @@ function renderWord(data) {
                     englishTranslations.length
                         ? `
                             <div class="translation">
-                                <span class="translation-language">🇬🇧 English</span>
+                                <span class="translation-language">🇬🇧 english</span>
                                 <span class="translation-text">${escapeHtml(englishTranslations.slice(0, 3).join(", "))}</span>
                             </div>
                         `
@@ -162,7 +162,7 @@ function renderWord(data) {
                     russianTranslations.length
                         ? `
                             <div class="translation">
-                                <span class="translation-language">🇷🇺 Русский</span>
+                                <span class="translation-language">🇷🇺 russian</span>
                                 <span class="translation-text">${escapeHtml(russianTranslations.slice(0, 3).join(", "))}</span>
                             </div>
                         `

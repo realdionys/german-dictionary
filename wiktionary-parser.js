@@ -54,6 +54,7 @@ function cleanText(text) {
         .replace(/''/g, "")
         .replace(/<[^>]+>/g, "")
         .replace(/&nbsp;/gi, " ")
+        .replace(/[„“”"«»‹›]/g, "")
         .replace(/\s+/g, " ")
         .trim();
 }
