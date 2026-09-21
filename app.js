@@ -2,6 +2,7 @@ const form = document.getElementById("search-form");
 const input = document.getElementById("search-input");
 const result = document.getElementById("result");
 
+
 form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -10,6 +11,13 @@ form.addEventListener("submit", async (event) => {
     if (!word) {
         return;
     }
+
+    await searchWord(word);
+});
+
+
+async function searchWord(word) {
+    input.value = word;
 
     result.innerHTML = "<p>loading...</p>";
 
@@ -32,7 +40,8 @@ form.addEventListener("submit", async (event) => {
 
         result.innerHTML = "<p>something went wrong.</p>";
     }
-});
+}
+
 
 function renderWord(data) {
     let html = `
@@ -50,43 +59,43 @@ function renderWord(data) {
     `;
 
     if (data.pronunciation && data.pronunciation.length > 0) {
-    html += `
-        <div class="pronunciation">
-            ${data.pronunciation
-                .map((pronunciation) => `
-                    <span>${escapeHtml(pronunciation)}</span>
-                `)
-                .join(" / ")}
-        </div>
-    `;
-}
+        html += `
+            <div class="pronunciation">
+                ${data.pronunciation
+                    .map((pronunciation) => `
+                        <span>${escapeHtml(pronunciation)}</span>
+                    `)
+                    .join(" / ")}
+            </div>
+        `;
+    }
 
     if (data.verb) {
-    const auxiliary =
-        data.verb.auxiliary === "sein"
-            ? "ist"
-            : "hat";
+        const auxiliary =
+            data.verb.auxiliary === "sein"
+                ? "ist"
+                : "hat";
 
-    html += `
-        <div class="verb-forms">
+        html += `
+            <div class="verb-forms">
 
-            <h3>verb formsxx</h3>
+                <h3>verb forms</h3>
 
-            <p>
-                <strong>past:</strong>
-                ${escapeHtml(data.verb.preterite)}
-            </p>
+                <p>
+                    <strong>past:</strong>
+                    ${escapeHtml(data.verb.preterite)}
+                </p>
 
-            <p>
-                <strong>perfect:</strong>
-                ${escapeHtml(
-                    auxiliary + " " + data.verb.perfect
-                )}
-            </p>
+                <p>
+                    <strong>perfect:</strong>
+                    ${escapeHtml(
+                        auxiliary + " " + data.verb.perfect
+                    )}
+                </p>
 
-        </div>
-    `;
-}
+            </div>
+        `;
+    }
 
     if (data.meanings && data.meanings.length > 0) {
         html += `
@@ -98,25 +107,25 @@ function renderWord(data) {
                     <div class="meaning">
 
                         <p class="meaning-definition">
-    <strong>${escapeHtml(String(meaning.number))}.</strong>
-    ${escapeHtml(meaning.definition)}
-</p>
+                            <strong>${escapeHtml(String(meaning.number))}.</strong>
+                            ${escapeHtml(meaning.definition)}
+                        </p>
 
-${
-    meaning.examples && meaning.examples.length > 0
-        ? `
-            <ul class="examples">
-    ${meaning.examples.map((example) => `
-        <li class="example">
-            ${escapeHtml(example)}
-        </li>
-    `).join("")}
-</ul>
-        `
-        : ""
-}
+                        ${
+                            meaning.examples && meaning.examples.length > 0
+                                ? `
+                                    <ul class="examples">
+                                        ${meaning.examples.map((example) => `
+                                            <li class="example">
+                                                ${escapeHtml(example)}
+                                            </li>
+                                        `).join("")}
+                                    </ul>
+                                `
+                                : ""
+                        }
 
-</div>
+                    </div>
                 `).join("")}
 
             </div>
@@ -129,6 +138,26 @@ ${
 
     result.innerHTML = html;
 }
+
+
+result.addEventListener("dblclick", (event) => {
+    const selection = window.getSelection();
+    const word = selection.toString().trim();
+
+    if (!word) {
+        return;
+    }
+
+    const cleanWord = word
+        .replace(/^[^\p{L}ÄÖÜäöüß]+|[^\p{L}ÄÖÜäöüß]+$/gu, "");
+
+    if (!cleanWord) {
+        return;
+    }
+
+    searchWord(cleanWord);
+});
+
 
 function escapeHtml(text) {
     if (!text) {
