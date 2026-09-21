@@ -134,10 +134,53 @@ function extractExamples(wikitext) {
             examples[number] = [];
         }
 
-        examples[number].push(example);
+        if (examples[number].length < 3) {
+            examples[number].push(example);
+        }
     });
 
     return examples;
+}
+
+
+function extractTranslations(wikitext) {
+    const translations = {
+        english: [],
+        russian: []
+    };
+
+    const languageMap = {
+        en: "english",
+        ru: "russian"
+    };
+
+    // Translation templates in German Wiktionary use forms such as
+    // {{Ü|en|give}} and {{Ü|ru|давать}}. Collecting them from the German
+    // section keeps the data tied to the entry currently being viewed.
+    const translationRegex =
+        /\{\{Ü(?:t)?\|(en|ru)\|([^|}]+)/gi;
+
+    let match;
+
+    while ((match = translationRegex.exec(wikitext)) !== null) {
+        const language = languageMap[match[1].toLowerCase()];
+        const translation = cleanText(match[2]);
+
+        if (translation && !translations[language].includes(translation)) {
+            translations[language].push(translation);
+        }
+    }
+
+    return translations;
+}
+
+
+function extractBaseForm(wikitext) {
+    const match = wikitext.match(
+        /\{\{Grundformverweis(?:\s+(?:Dekl|Konj))?\|([^|}]+)/i
+    );
+
+    return match ? cleanText(match[1]) : null;
 }
 
 
@@ -147,7 +190,11 @@ function parseWord(wikitext, word) {
         level: null,
         partOfSpeech: null,
         pronunciation: null,
-        translations: [],
+        translations: {
+            english: [],
+            russian: []
+        },
+        baseForm: extractBaseForm(wikitext),
         meanings: [],
         verb: null
     };
@@ -237,6 +284,10 @@ function parseWord(wikitext, word) {
         const germanSection = germanSectionMatch[1];
 
         const examples = extractExamples(
+            germanSection
+        );
+
+        result.translations = extractTranslations(
             germanSection
         );
 

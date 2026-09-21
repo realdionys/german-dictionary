@@ -15,31 +15,95 @@ form.addEventListener("submit", async (event) => {
     await searchWord(word);
 });
 
+document.querySelectorAll(".example-query").forEach((button) => {
+    button.addEventListener("click", () => {
+        searchWord(button.dataset.word);
+    });
+});
 
-async function searchWord(word) {
+
+async function searchWord(word, exactMatch = false) {
     input.value = word;
 
-    result.innerHTML = "<p>loading...</p>";
+    result.innerHTML = `
+        <div class="status-message">
+            <span class="loading-dot" aria-hidden="true"></span>
+            <p>Looking up <strong>${escapeHtml(word)}</strong>…</p>
+        </div>
+    `;
 
     try {
         const response = await fetch(
-            `/api/word/${encodeURIComponent(word)}`
+            `/api/word/${encodeURIComponent(word)}${
+                exactMatch ? "?exact=1" : ""
+            }`
         );
 
         const data = await response.json();
 
         if (!response.ok) {
-            result.innerHTML = "<p>word not found.</p>";
+            result.innerHTML = `
+                <div class="status-message error-message">
+                    <p>${
+                        response.status >= 500
+                            ? "Wiktionary is temporarily unavailable. Please try again in a moment."
+                            : `We couldn't find <strong>${escapeHtml(word)}</strong>. Check the spelling and try again.`
+                    }</p>
+                </div>
+            `;
             return;
         }
 
-        renderWord(data);
+        if (data.type === "choices") {
+            renderChoices(data);
+        } else {
+            renderWord(data);
+        }
 
     } catch (error) {
         console.error(error);
 
-        result.innerHTML = "<p>something went wrong.</p>";
+        result.innerHTML = `
+            <div class="status-message error-message">
+                <p>Something went wrong. Please try again in a moment.</p>
+            </div>
+        `;
     }
+}
+
+
+function renderChoices(data) {
+    const choices = data.choices.map((choice) => {
+        const english = choice.translations?.english?.slice(0, 2).join(", ");
+        const russian = choice.translations?.russian?.slice(0, 2).join(", ");
+        const translations = [
+            english ? `🇬🇧 ${english}` : "",
+            russian ? `🇷🇺 ${russian}` : ""
+        ].filter(Boolean).join(" · ");
+
+        return `
+            <button class="choice" type="button" data-word="${escapeHtml(choice.word)}">
+                <span class="choice-word">${escapeHtml(choice.word)}</span>
+                ${choice.partOfSpeech ? `<span class="choice-part-of-speech">${escapeHtml(choice.partOfSpeech)}</span>` : ""}
+                ${choice.definition ? `<span class="choice-definition">${escapeHtml(choice.definition)}</span>` : ""}
+                ${translations ? `<span class="choice-translations">${escapeHtml(translations)}</span>` : ""}
+            </button>
+        `;
+    }).join("");
+
+    result.innerHTML = `
+        <section class="choice-list">
+            <h2>Which word did you mean?</h2>
+            <p>We found a few possible entries for <strong>${escapeHtml(data.query)}</strong>.</p>
+            ${choices}
+        </section>
+    `;
+
+    result.querySelectorAll(".choice").forEach((choice) => {
+        choice.addEventListener("click", () => {
+            searchWord(choice.dataset.word, true);
+        });
+    });
 }
 
 
@@ -66,6 +130,36 @@ function renderWord(data) {
                         <span>${escapeHtml(pronunciation)}</span>
                     `)
                     .join(" / ")}
+            </div>
+        `;
+    }
+
+    const englishTranslations = data.translations?.english || [];
+    const russianTranslations = data.translations?.russian || [];
+
+    if (englishTranslations.length || russianTranslations.length) {
+        html += `
+            <div class="translations" aria-label="Translations">
+                ${
+                    englishTranslations.length
+                        ? `
+                            <div class="translation">
+                                <span class="translation-language">🇬🇧 English</span>
+                                <span class="translation-text">${escapeHtml(englishTranslations.slice(0, 3).join(", "))}</span>
+                            </div>
+                        `
+                        : ""
+                }
+                ${
+                    russianTranslations.length
+                        ? `
+                            <div class="translation">
+                                <span class="translation-language">🇷🇺 Русский</span>
+                                <span class="translation-text">${escapeHtml(russianTranslations.slice(0, 3).join(", "))}</span>
+                            </div>
+                        `
+                        : ""
+                }
             </div>
         `;
     }
@@ -115,7 +209,7 @@ function renderWord(data) {
                             meaning.examples && meaning.examples.length > 0
                                 ? `
                                     <ul class="examples">
-                                        ${meaning.examples.map((example) => `
+                                        ${meaning.examples.slice(0, 3).map((example) => `
                                             <li class="example">
                                                 ${escapeHtml(example)}
                                             </li>
