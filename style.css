@@ -5,10 +5,10 @@
     --paper: #ffffff;
     --canvas: #f5f7fa;
     --line: #e4e8ed;
-    --blue: #2563eb;
-    --blue-dark: #1d4ed8;
-    --blue-pale: #eff6ff;
-    --gold: #d97706;
+    --blue: #b45309;
+    --blue-dark: #92400e;
+    --blue-pale: #fff7ed;
+    --gold: #c05d0b;
     --sans: "Source Sans Pro", ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -96,7 +96,7 @@ h1 {
     transition: border-color .16s ease, box-shadow .16s ease;
 }
 
-.search-form:focus-within { border-color: #91b5fb; box-shadow: 0 0 0 4px rgb(37 99 235 / 11%); }
+.search-form:focus-within { border-color: #edb26f; box-shadow: 0 0 0 4px rgb(180 83 9 / 13%); }
 .search-icon { display: grid; width: 58px; place-items: center; color: var(--subtle); }
 .search-icon svg { width: 21px; height: 21px; }
 
@@ -144,6 +144,8 @@ h1 {
     letter-spacing: -.055em;
     line-height: 1;
 }
+.article { margin-right: 10px; color: var(--blue); font-size: .52em; font-weight: 600; letter-spacing: -.02em; vertical-align: .16em; }
+.article:empty { display: none; }
 .word-info { padding: 0 38px; color: var(--blue); font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .pronunciation { padding: 10px 38px 26px; color: var(--muted); font-size: 17px; }
 
@@ -156,12 +158,12 @@ h1 {
 .translation {
     min-width: 0;
     padding: 13px 15px;
-    border: 1px solid #dce7fb;
+    border: 1px solid #f2d2ae;
     border-radius: 10px;
     background: var(--blue-pale);
 }
-.translation-language { display: block; margin-bottom: 3px; color: #5070aa; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-.translation-text { color: #22344f; font-size: 16px; font-weight: 600; line-height: 1.35; }
+.translation-language { display: block; margin-bottom: 3px; color: #9a4f10; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.translation-text { color: #4a2c16; font-size: 16px; font-weight: 600; line-height: 1.35; }
 
 .verb-forms { display: grid; grid-template-columns: 120px 1fr 1fr; gap: 14px; align-items: center; padding: 17px 38px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fafbfd; }
 .verb-forms h3, .meanings h3 { margin: 0; color: var(--muted); font-size: 11px; font-weight: 750; letter-spacing: .11em; text-transform: uppercase; }
@@ -183,14 +185,14 @@ h1 {
 .empty-icon { color: #a2afbf; }
 .empty-icon svg { width: 24px; height: 24px; }
 .status-message { justify-content: flex-start; padding: 22px 26px; }
-.loading-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); box-shadow: 14px 0 0 #8db4fa, 28px 0 0 #d2e2ff; }
+.loading-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); box-shadow: 14px 0 0 #e6a960, 28px 0 0 #f8dcc0; }
 .error-message { border-style: solid; border-color: #f3d4d0; color: #9b3832; background: #fff9f8; }
 
 .choice-list { padding: 29px 30px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); box-shadow: 0 8px 24px rgb(30 42 58 / 4%); }
 .choice-list > h2 { margin-bottom: 5px; color: var(--ink); font-size: 23px; font-weight: 600; letter-spacing: -.02em; }
 .choice-list > p { margin-bottom: 20px; color: var(--muted); font-size: 15px; }
 .choice { display: block; width: 100%; margin-top: 10px; padding: 17px 18px; border: 1px solid var(--line); border-radius: 11px; color: inherit; background: #fff; text-align: left; transition: border-color .16s ease, background .16s ease; }
-.choice:hover, .choice:focus-visible { border-color: #aac6fa; background: var(--blue-pale); outline: none; }
+.choice:hover, .choice:focus-visible { border-color: #e9b77e; background: var(--blue-pale); outline: none; }
 .choice-word { display: block; margin-bottom: 2px; color: var(--ink); font-size: 21px; font-weight: 600; line-height: 1.1; }
 .choice-part-of-speech { color: var(--blue); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
 .choice-definition { display: block; margin-top: 9px; color: var(--ink); font-size: 15px; line-height: 1.45; }

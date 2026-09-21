@@ -111,7 +111,7 @@ function renderWord(data) {
     let html = `
         <section class="word">
 
-            <h2>${escapeHtml(data.word)}</h2>
+            <h2><span class="article">${escapeHtml(data.article || "")}</span>${escapeHtml(data.word)}</h2>
 
             <div class="word-info">
                 ${

@@ -35,14 +35,26 @@ function cleanText(text) {
         return "";
     }
 
-    return text
-        .replace(/\{\{K\|[^|}]+(?:\|[^}]*)?\}\}/g, "")
-        .replace(/\{\{[^{}]*\}\}/g, "")
+    let cleanedText = text
+        .replace(/<ref\b[^>]*>[\s\S]*?<\/ref\s*>/gi, "")
+        .replace(/<ref\b[^>]*\/>/gi, "");
+    let previousText;
+
+    // Some Wiktionary citations contain nested templates. Remove the innermost
+    // template repeatedly so no citation markup reaches the interface.
+    do {
+        previousText = cleanedText;
+        cleanedText = cleanedText.replace(/\{\{[^{}]*\}\}/g, "");
+    } while (cleanedText !== previousText);
+
+    return cleanedText
         .replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, "$2")
         .replace(/\[\[([^\]]+)\]\]/g, "$1")
         .replace(/'''?/g, "")
         .replace(/''/g, "")
         .replace(/<[^>]+>/g, "")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/\s+/g, " ")
         .trim();
 }
 
@@ -126,7 +138,10 @@ function extractExamples(wikitext) {
         const number = match[1];
         const example = cleanText(match[2]);
 
-        if (!example) {
+        const hasCitationMarkup =
+            /\{\{|\}\}|\b(?:Autor|Titel|Verlag|Seiten|Zitiert nach)\s*=/i.test(example);
+
+        if (!example || example.length > 160 || hasCitationMarkup) {
             return;
         }
 
@@ -140,6 +155,29 @@ function extractExamples(wikitext) {
     });
 
     return examples;
+}
+
+
+function extractArticle(wikitext) {
+    const nounTemplate = getTemplate(
+        wikitext,
+        "Deutsch Substantiv Übersicht"
+    );
+
+    if (!nounTemplate) {
+        return null;
+    }
+
+    const gender = cleanText(
+        nounTemplate.Genus || nounTemplate["Genus 1"]
+    );
+    const articles = {
+        m: "der",
+        f: "die",
+        n: "das"
+    };
+
+    return articles[gender] || null;
 }
 
 
@@ -194,6 +232,7 @@ function parseWord(wikitext, word) {
             english: [],
             russian: []
         },
+        article: extractArticle(wikitext),
         baseForm: extractBaseForm(wikitext),
         meanings: [],
         verb: null
